@@ -1,0 +1,42 @@
+- name: Get the IP address of the default interface
+  shell: "ip -o -4 addr show dev {{ ansible_default_ipv4.interface }} | awk '{print $4}' | cut -d'/' -f1"
+  register: endpoint
+
+
+- name: Run kubeadm init
+  command: >
+    kubeadm init --node-name={{ansible_hostname}} --pod-network-cidr=10.244.0.0/16
+    --ignore-preflight-errors=all --upload-certs --control-plane-endpoint={{endpoint.stdout}}  --apiserver-cert-extra-sans={{endpoint.stdout}} --apiserver-advertise-address={{endpoint.stdout}}
+
+- name: create .kube directory
+  file:
+    path: .kube
+    state: directory
+    mode: 0755
+    owner: ubuntu
+
+- name: copy admin.conf to user's kube config
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: .kube/config
+    remote_src: yes
+    owner: ubuntu
+
+- name: Download Cilium CLI
+  shell: |
+    CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable-v0.14.txt)
+    CLI_ARCH=amd64
+    if [ "$(uname -m)" = "aarch64" ]; then CLI_ARCH=arm64; fi
+    curl -L --fail --remote-name-all https://github.com/cilium/cilium-cli/releases/download/${CILIUM_CLI_VERSION}/cilium-linux-${CLI_ARCH}.tar.gz{,.sha256sum}
+    sha256sum --check cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
+    sudo tar xzvfC cilium-linux-${CLI_ARCH}.tar.gz /usr/local/bin
+    rm cilium-linux-${CLI_ARCH}.tar.gz
+    rm cilium-linux-${CLI_ARCH}.tar.gz.sha256sum
+  args:
+    chdir: /tmp
+  changed_when: false
+
+- name: Install Cilium
+  become: true
+  become_user: ubuntu
+  shell: "cilium install --ipam kubernetes"

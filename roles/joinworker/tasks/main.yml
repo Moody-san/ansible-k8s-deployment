@@ -1,0 +1,7 @@
+- name: End Play Gracefully when already part of cluster
+  meta: end_play
+  when: hostvars[groups['master'][0]]['node_names'] is defined and inventory_hostname in hostvars[groups['master'][0]]['node_names']
+  ignore_errors: true
+
+- name: Execute kubeadm join command if Not in Cluster
+  shell: "{{ hostvars[groups['master'][0]]['join_command'] }} --ignore-preflight-errors=all"
