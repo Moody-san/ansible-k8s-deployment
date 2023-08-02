@@ -1,0 +1,17 @@
+- name: Get Join Key From Master 
+  hosts: master
+  become: true
+  roles:
+    - getjoinkey
+
+- name: Setup Containerd and Kubernetes tools on Control Node
+  hosts: joinasmaster
+  become: true
+  roles:
+    - clusterprereq
+
+- name: Add Control Node to Cluster
+  hosts: joinasmaster
+  become: true
+  roles:
+    - joinmaster

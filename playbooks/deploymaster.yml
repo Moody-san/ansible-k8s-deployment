@@ -1,0 +1,11 @@
+- name: Setup Containerd and Kubernetes tools
+  hosts: master
+  become: true
+  roles:
+    - clusterprereq
+
+- name: Initialize Kubernetes Master Node
+  hosts: master
+  become: true
+  roles:
+    - initializemaster

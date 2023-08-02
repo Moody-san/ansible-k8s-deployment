@@ -1,0 +1,18 @@
+- name: Get Join Key From Master 
+  hosts: master
+  become: true
+  roles:
+    - getjoinkey
+
+- name: Setup Containerd and Kubernetes tools on Worker Node
+  hosts: joinasworker
+  become: true
+  roles:
+    - clusterprereq
+
+
+- name: Join Worker Node to the Cluster
+  hosts: joinasworker
+  become: true
+  roles:
+    - joinworker
