@@ -16,7 +16,7 @@
   roles:
     - getjoinkey
 
-- name: Setup Containerd and Kubernetes tools on Control Node
+- name: Setup Containerd and Kubernetes tools other Nodes
   hosts: [joinasworker,joinasmaster]
   become: true
   roles:

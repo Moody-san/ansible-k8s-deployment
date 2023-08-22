@@ -1,5 +1,5 @@
 - name: Run kubectl get nodes on remote hosts
-  shell: kubectl get nodes --no-headers 
+  shell: kubectl get nodes --no-headers | awk '{print $1}'
   become_user: ubuntu
   register: kubectl_output
 
@@ -15,4 +15,4 @@
   set_fact:
     join_command: "{{ join_command_raw.stdout_lines[0] }}"
     join_certs: "{{ join_certs_raw.stdout_lines[0] }}"
-    node_names: "{{ kubectl_output.stdout_lines | map('split') | map(attribute='0') | list }}"
+    node_names: "{{ kubectl_output.stdout_lines }}"
