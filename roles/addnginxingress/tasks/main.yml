@@ -1,0 +1,33 @@
+- name: Deploy MetalLB
+  shell: kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.13.7/config/manifests/metallb-native.yaml
+
+- name: Create MetalLB IP Address Configuration File
+  copy:
+    content: |
+      apiVersion: metallb.io/v1beta1
+      kind: IPAddressPool
+      metadata:
+        name: default-pool
+        namespace: metallb-system
+      spec:
+        addresses: 
+      {% for host in groups['joinasworker'] %}
+        - {{ hostvars[host].ansible_host }}/32
+      {% endfor %}
+      ---
+      apiVersion: metallb.io/v1beta1
+      kind: L2Advertisement
+      metadata:
+        name: default
+        namespace: metallb-system
+      spec:
+        ipAddressPools:
+        - default-pool
+    dest: metallbipaddress.yml
+
+- name: Deploy MetalLB IP Address Configuration
+  shell: kubectl apply -f metallbipaddress.yml
+  
+- name: Deploy NGINX Ingress
+  shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.2/deploy/static/provider/cloud/deploy.yaml
+  
