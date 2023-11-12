@@ -22,6 +22,18 @@
     remote_src: yes
     owner: ubuntu
 
+
+# - name: Download custom-resources.yaml using curl
+#   shell: curl -o /tmp/calico.yaml https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
+#   become_user: ubuntu
+#   become: true
+
+# - name: Apply Calico resources
+#   shell: kubectl create -f /tmp/calico.yaml 
+#   become_user: ubuntu
+#   become: true
+
+
 - name: Download Cilium CLI
   shell: |
     CILIUM_CLI_VERSION=$(curl -s https://raw.githubusercontent.com/cilium/cilium-cli/main/stable-v0.14.txt)
@@ -40,3 +52,4 @@
   become: true
   become_user: ubuntu
   shell: "cilium install --ipam kubernetes"
+

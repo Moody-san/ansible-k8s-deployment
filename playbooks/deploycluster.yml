@@ -34,21 +34,21 @@
   roles:
     - joinmaster
 
-# - name: Add Istio Mesh
-#   hosts: master
-#   become: true
-#   become_user: ubuntu
-#   vars:
-#     istio_version: "1.19.1"
-#     target_arch_mapping:
-#       x86_64: x86_64
-#       aarch64: arm64
-#   roles:
-#     - addistiomesh
-
-- name: Add Ingress Nginx
+- name: Add Istio Mesh
   hosts: master
   become: true
   become_user: ubuntu
+  vars:
+    istio_version: "1.19.1"
+    target_arch_mapping:
+      x86_64: x86_64
+      aarch64: arm64
   roles:
-    - addnginxingress
+    - addistiomesh
+
+# - name: Add Ingress Nginx
+#   hosts: master
+#   become: true
+#   become_user: ubuntu
+#   roles:
+#     - addnginxingress

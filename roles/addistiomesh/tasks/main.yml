@@ -8,7 +8,7 @@
     chdir: "/home/ubuntu"
 
 - name: Install istio using istioctl with demo profile
-  shell: /home/ubuntu/istio-1.19.1/bin/istioctl install --set profile=demo -y
+  shell: /home/ubuntu/istio-1.19.1/bin/istioctl install --set profile=default -y
 
 - name: Label the default namespace for istio injection
   shell: kubectl label namespace default istio-injection=enabled

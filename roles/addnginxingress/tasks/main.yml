@@ -25,6 +25,15 @@
         - default-pool
     dest: metallbipaddress.yml
 
+- name: Wait for metal lb pods
+  shell: kubectl -n metallb-system wait pod --all --timeout=90s --for=condition=Ready
+
+- name: Wait for metal lb controller
+  shell: kubectl -n metallb-system wait deploy controller --timeout=90s --for=condition=Available
+
+- name: Wait for metal lb api
+  shell: kubectl -n metallb-system wait apiservice v1beta1.metallb.io --timeout=90s --for=condition=Available
+
 - name: Deploy MetalLB IP Address Configuration
   shell: kubectl apply -f metallbipaddress.yml
   
