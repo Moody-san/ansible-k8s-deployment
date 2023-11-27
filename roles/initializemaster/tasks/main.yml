@@ -2,18 +2,16 @@
   shell: "ip -o -4 addr show dev {{ ansible_default_ipv4.interface }} | awk '{print $4}' | cut -d'/' -f1"
   register: endpoint
 
-
 - name: Run kubeadm init
   command: >
-    kubeadm init --node-name={{ansible_hostname}} --pod-network-cidr=10.244.0.0/16
-    --ignore-preflight-errors=all --upload-certs --control-plane-endpoint={{endpoint.stdout}}  --apiserver-cert-extra-sans={{endpoint.stdout}} --apiserver-advertise-address={{endpoint.stdout}}
+    kubeadm init --node-name={{ansible_hostname}} --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=all --upload-certs --control-plane-endpoint={{endpoint.stdout}} --apiserver-cert-extra-sans={{endpoint.stdout}} --apiserver-advertise-address={{endpoint.stdout}}
 
 - name: create .kube directory
   file:
     path: .kube
     state: directory
-    mode: 0755
     owner: ubuntu
+    group: ubuntu
 
 - name: copy admin.conf to user's kube config
   copy:
@@ -21,7 +19,7 @@
     dest: .kube/config
     remote_src: yes
     owner: ubuntu
-
+    group: ubuntu
 
 # - name: Download custom-resources.yaml using curl
 #   shell: curl -o /tmp/calico.yaml https://raw.githubusercontent.com/projectcalico/calico/v3.26.1/manifests/calico.yaml
@@ -49,7 +47,7 @@
   changed_when: false
 
 - name: Install Cilium
-  become: true
-  become_user: ubuntu
   shell: "cilium install --ipam kubernetes"
+  become_user: ubuntu
+  become: true
 

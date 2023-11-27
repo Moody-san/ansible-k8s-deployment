@@ -1,11 +1,12 @@
 - name: Run kubectl get nodes on remote hosts
   shell: kubectl get nodes --no-headers | awk '{print $1}'
   become_user: ubuntu
+  become: true
   register: kubectl_output
 
 - name: get join token
   shell: kubeadm token create --print-join-command
-  register: join_command_raw 
+  register: join_command_raw
 
 - name: get join certifactes
   shell: kubeadm init phase upload-certs --upload-certs | grep -vw -e certificate -e Namespace

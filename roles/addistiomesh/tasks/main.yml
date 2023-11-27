@@ -1,13 +1,13 @@
 - name: Install yq
   shell: sudo snap install yq
 
-- name: Download and install Istio
+- name: Download Istio
   shell: |
     curl -L https://istio.io/downloadIstio | ISTIO_VERSION={{ istio_version }} TARGET_ARCH={{ target_arch_mapping[ansible_architecture] }} sh -
   args:
     chdir: "/home/ubuntu"
 
-- name: Install istio using istioctl with demo profile
+- name: Install istio using istioctl 
   shell: /home/ubuntu/istio-1.19.1/bin/istioctl install --set profile=default -y
 
 - name: Label the default namespace for istio injection

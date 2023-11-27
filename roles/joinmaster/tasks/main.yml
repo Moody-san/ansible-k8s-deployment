@@ -1,17 +1,16 @@
 - name: End Play Gracefully when already part of cluster
   meta: end_play
   when: hostvars[groups['master'][0]]['node_names'] is defined and inventory_hostname in hostvars[groups['master'][0]]['node_names']
-  ignore_errors: true
 
 - name: Execute kubeadm join command
-  shell: "{{ hostvars[groups['master'][0]]['join_command'] }} --control-plane --certificate-key {{ hostvars[groups['master'][0]]['join_certs'] }} --ignore-preflight-errors=all"
+  shell: "{{ hostvars[groups['master'][0]]['join_command'] }} --ignore-preflight-errors=all --control-plane --certificate-key {{ hostvars[groups['master'][0]]['join_certs'] }}"
 
 - name: create .kube directory
   file:
     path: .kube
     state: directory
-    mode: 0755
     owner: ubuntu
+    group: ubuntu
 
 - name: copy admin.conf to user's kube config
   copy:
@@ -19,3 +18,4 @@
     dest: .kube/config
     remote_src: yes
     owner: ubuntu
+    group: ubuntu

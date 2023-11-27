@@ -45,6 +45,9 @@
     regexp: '^(\s*SystemdCgroup = )false$'
     replace: '\1true'
 
+- name: Use pause image 3.9
+  shell: sed -i 's#sandbox_image = "registry\.k8s\.io/pause:3\.8"#sandbox_image = "registry.k8s.io/pause:3.9"#' /etc/containerd/config.toml
+
 - name: Enable IPv4 forwarding
   replace:
     path: /etc/sysctl.conf
@@ -74,7 +77,6 @@
   file:
     path: /etc/apt/keyrings/
     state: directory
-  become: true 
 
 - name: Add Kubernetes apt repository key
   become: true
