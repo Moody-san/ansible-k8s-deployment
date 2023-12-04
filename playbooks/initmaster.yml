@@ -9,5 +9,8 @@
   hosts: master
   become: yes
   become_user: root
+  vars_prompt:
+    - name: "privatelbip"
+      prompt: "Enter the Load Balancer Private IP"
   roles:
     - initializemaster

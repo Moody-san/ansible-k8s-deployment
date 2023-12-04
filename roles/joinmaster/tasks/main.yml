@@ -1,9 +1,5 @@
-- name: End Play Gracefully when already part of cluster
-  meta: end_play
-  when: hostvars[groups['master'][0]]['node_names'] is defined and inventory_hostname in hostvars[groups['master'][0]]['node_names']
-
 - name: Execute kubeadm join command
-  shell: "{{ hostvars[groups['master'][0]]['join_command'] }} --ignore-preflight-errors=all --control-plane --certificate-key {{ hostvars[groups['master'][0]]['join_certs'] }}"
+  shell: "{{ hostvars[groups['master'][0]]['join_command_control_node'] }} --ignore-preflight-errors=all"
 
 - name: create .kube directory
   file:
