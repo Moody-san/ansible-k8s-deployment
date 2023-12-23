@@ -9,10 +9,3 @@
       aarch64: arm64
   roles:
     - addistiomesh
-
-# - name: Add Ingress Nginx
-#   hosts: master
-#   become: true
-#   become_user: ubuntu
-#   roles:
-#     - addnginxingress
