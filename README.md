@@ -1,6 +1,6 @@
 # Ansible Kubernetes Deployment
 
-This repository contains Ansible playbooks and scripts for deploying a Kubernetes cluster with Kubeadm. It is designed to streamline the setup and management of Kubernetes .
+This repository contains Ansible playbooks and scripts for deploying a Kubernetes cluster with Kubeadm.
 ## Prerequisites
 
 Before you begin, ensure you have the following installed on your machine:
