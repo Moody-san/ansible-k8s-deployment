@@ -1,26 +1,6 @@
-- name: End Play Gracefully when already part of cluster
-  meta: end_play
-  when: hostvars[groups['master'][0]]['node_names'] is defined and inventory_hostname in hostvars[groups['master'][0]]['node_names']
-  ignore_errors: true
-
-- name: Stop unattended-upgrades service
-  service:
-    name: unattended-upgrades
-    state: stopped
-
-- name: Disable unattended-upgrades service on boot
-  systemd:
-    name: unattended-upgrades
-    enabled: no
-
-- name: Wait for cloud-init / user-data to finish
-  command: cloud-init status --wait
-  changed_when: false
-    
-
 - name: Remove Kubernetes apt repository key file
   file:
-    path: /etc/apt/keyrings/kubernetes-archive-keyring*
+    path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
     state: absent
 
 - name: Remove Kubernetes repository source file
@@ -30,50 +10,8 @@
 
 - name: Update apt cache
   apt:
+    force_apt_get: yes
     update_cache: yes
-
-- name: Upgrade all packages
-  apt:
-    upgrade: dist
-    update_cache: yes
-
-- name: Reboot the system
-  reboot:
-    reboot_timeout: 200
-    pre_reboot_delay: 30
-  async: 0
-  poll: 0
-  ignore_errors: true
-
-- name: Wait for cloud-init / user-data to finish
-  command: cloud-init status --wait
-  changed_when: false
-
-- name: Install iptables-persistent
-  package:
-    name: iptables-persistent
-    state: present
-
-- name: Flush iptables rules
-  shell: iptables -F
-
-- name: Allow FORWARD traffic
-  shell: iptables -A FORWARD -j ACCEPT
-
-- name: Allow INPUT traffic
-  shell: iptables -A INPUT -j ACCEPT
-
-- name: Allow OUTPUT traffic
-  shell: iptables -A OUTPUT -j ACCEPT
-
-- name: Save IPv4 iptables rules
-  become_user: root
-  shell: iptables-save > /etc/iptables/rules.v4
-
-- name: Save IPv6 iptables rules
-  become_user: root
-  shell: ip6tables-save > /etc/iptables/rules.v6
-
 
 - name: Install containerd
   apt:
@@ -102,6 +40,9 @@
     regexp: '^(\s*SystemdCgroup = )false$'
     replace: '\1true'
 
+- name: Use pause image 3.9
+  shell: sed -i 's#sandbox_image = "registry\.k8s\.io/pause:3\.8"#sandbox_image = "registry.k8s.io/pause:3.9"#' /etc/containerd/config.toml
+
 - name: Enable IPv4 forwarding
   replace:
     path: /etc/sysctl.conf
@@ -123,10 +64,6 @@
   poll: 0
   ignore_errors: true
 
-- name: Wait for cloud-init / user-data to finish
-  command: cloud-init status --wait
-  changed_when: false
-
 - name: Disable swap for the current session
   command: swapoff -a
   ignore_errors: true 
@@ -135,21 +72,22 @@
   file:
     path: /etc/apt/keyrings/
     state: directory
-  become: true 
+    mode: '0755'
 
-- name: Add Kubernetes apt repository key
-  become: true
-  become_user: ubuntu
-  shell: curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+- name: Install ca-certificates
+  ansible.builtin.apt:
+    name: ca-certificates
+    state: present
 
-- name: Echo Kubernetes repository to sources.list.d
-  lineinfile:
-    path: /etc/apt/sources.list.d/kubernetes.list
-    line: "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main"
-    create: yes
+- name : add kubernetes repo
+  shell: wget -qO- https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --batch --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+- name : add kubernetes repo
+  raw: echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
 - name: Update apt cache
   apt:
+    force_apt_get: yes
     update_cache: yes
 
 - name: Install Kubernetes tools

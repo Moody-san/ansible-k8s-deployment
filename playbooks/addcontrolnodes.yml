@@ -1,17 +1,20 @@
 - name: Get Join Key From Master 
   hosts: master
-  become: true
+  become: yes
+  become_user: root
   roles:
     - getjoinkey
 
 - name: Setup Containerd and Kubernetes tools on Control Node
   hosts: joinasmaster
-  become: true
+  become_user: root
+  become: yes
   roles:
     - clusterprereq
 
 - name: Add Control Node to Cluster
   hosts: joinasmaster
-  become: true
+  become: yes
+  become_user: root
   roles:
     - joinmaster

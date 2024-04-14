@@ -1,0 +1,43 @@
+- name: Install yq
+  shell: sudo snap install yq
+
+- name: Download Istio
+  shell: |
+    curl -L https://istio.io/downloadIstio | ISTIO_VERSION={{ istio_version }} TARGET_ARCH={{ target_arch_mapping[ansible_architecture] }} sh -
+  args:
+    chdir: "/home/ubuntu"
+
+- name: Install istio using istioctl 
+  shell: /home/ubuntu/istio-1.19.1/bin/istioctl install --set profile=default -y
+
+- name: Label the default namespace for istio injection
+  shell: kubectl label namespace default istio-injection=enabled
+
+- name: Get istio-ingressgateway service definition
+  shell: kubectl get svc istio-ingressgateway -n istio-system -o yaml
+  register: istio_ingress
+
+- name: Save the service definition to a file
+  copy:
+    content: "{{ istio_ingress.stdout }}"
+    dest: "/home/ubuntu/istio-ingressgateway-svc.yml"
+
+- name: Replace LoadBalancer with NodePort in the service file
+  replace:
+    path: "/home/ubuntu/istio-ingressgateway-svc.yml"
+    regexp: 'type: LoadBalancer'
+    replace: 'type: NodePort'
+
+- name: Set http2 NodePort to 31736
+  command: >
+    /snap/bin/yq e '.spec.ports[] |= select(.name == "http2").nodePort = 31736' -i /home/ubuntu/istio-ingressgateway-svc.yml
+
+- name: Delete the allocateLoadBalancerNodePorts section
+  command: >
+    /snap/bin/yq -e 'del(.spec.allocateLoadBalancerNodePorts)' -i /home/ubuntu/istio-ingressgateway-svc.yml
+
+- name: Delete the existing istio-ingressgateway service
+  shell: kubectl delete svc istio-ingressgateway -n istio-system
+
+- name: Apply the modified istio-ingressgateway service definition
+  shell: kubectl apply -f /home/ubuntu/istio-ingressgateway-svc.yml

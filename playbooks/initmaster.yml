@@ -1,11 +1,16 @@
 - name: Setup Containerd and Kubernetes tools
   hosts: master
-  become: true
+  become: yes
+  become_user: root
   roles:
     - clusterprereq
 
 - name: Initialize Kubernetes Master Node
   hosts: master
-  become: true
+  become: yes
+  become_user: root
+  vars_prompt:
+    - name: "privatelbip"
+      prompt: "Enter the Load Balancer Private IP"
   roles:
     - initializemaster
