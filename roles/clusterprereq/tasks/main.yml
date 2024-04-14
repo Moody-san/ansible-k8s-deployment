@@ -1,6 +1,6 @@
 - name: Remove Kubernetes apt repository key file
   file:
-    path: /etc/apt/keyrings/kubernetes-archive-keyring*
+    path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
     state: absent
 
 - name: Remove Kubernetes repository source file
@@ -72,17 +72,18 @@
   file:
     path: /etc/apt/keyrings/
     state: directory
+    mode: '0755'
 
-- name: Add Kubernetes apt repository key
-  become: true
-  become_user: ubuntu
-  shell: curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-archive-keyring.gpg
+- name: Install ca-certificates
+  ansible.builtin.apt:
+    name: ca-certificates
+    state: present
 
-- name: Echo Kubernetes repository to sources.list.d
-  lineinfile:
-    path: /etc/apt/sources.list.d/kubernetes.list
-    line: "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main"
-    create: yes
+- name : add kubernetes repo
+  shell: wget -qO- https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key | sudo gpg --batch --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+- name : add kubernetes repo
+  raw: echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
 - name: Update apt cache
   apt:
