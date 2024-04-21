@@ -4,6 +4,7 @@ This repository contains Ansible playbooks and scripts for deploying a Kubernete
 ## Prerequisites
 
 - **Infra provisioned through IAC**: Deployed infrastructure using [terraform multi cloud iac](https://github.com/Moody-san/terraform-multicloud-infra) (as it contains a module to automatically update inventory for ansible scripts given that ansible repo and terraform repo are in the same directories). 
+- **Ansible Controller Scripts**: Run the setupiptables.yml and acceptfingerprint.yml from ansible_controller_setup repository . Link in Additional Resources .
 - **Software Requirements**: Ensure Ansible cli is installed.
 
 ## Installation
