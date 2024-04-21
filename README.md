@@ -3,11 +3,8 @@
 This repository contains Ansible playbooks and scripts for deploying a Kubernetes cluster with Kubeadm.
 ## Prerequisites
 
-Before you begin, ensure you have the following installed on your machine:
-
-- Ansible
-- Git
-- Infra deployed using -> https://github.com/Moody-san/terraform-multicloud-infra
+- **Infra provisioned through IAC**: Deployed infrastructure using [terraform multi cloud iac](https://github.com/Moody-san/terraform-multicloud-infra) (as it contains a module to automatically update inventory for ansible scripts given that ansible repo and terraform repo are in the same directories). 
+- **Software Requirements**: Ensure Ansible cli is installed.
 
 ## Installation
 
@@ -20,5 +17,21 @@ cd ansible-k8s-deployment/playbooks
 ## Usage
 ```bash
 ansible-playbook initmaster.yml -i ../inventory/oracleinventory
+ansible-playbook addworkernodes.yml -i ../inventory/oracleinventory
+ansible-playbook addcontrolnodes.yml -i ../inventory/oracleinventory
+ansible-playbook addistiomesh.yml -i ../inventory/oracleinventory
 ```
-You will be prompted for private load balancer ip which was setup using terraform repo . Run the remaining scripts using the same syntax .
+## Configuration
+
+you can use the -l limit tag to add specific nodes only for example 
+```bash
+ansible-playbook addworkernodes.yml -i ../inventory/oracleinventory -l oraclemaster,oracleworker
+```
+
+## Additional Resources
+- **MariaDB Cluster Setup**: For setting up a MariaDB cluster with Kubernetes-based failover, visit [ansible-galeracluster-deployment](https://github.com/Moody-san/ansible-galeracluster-deployment).
+- **CI/CD and Automation**: For CI/CD and other automation scripts, refer to [ansible-controller-setup](https://github.com/Moody-san/ansible-controller-setup).
+
+## Notes
+- You will be prompted for your private load balancer ip when initializing kubernetes cluster . The one provisioned through the terraform .
+- When using limit with for example with addworkernodes oraclemaster is required as we use oracle master to generate the join string .
