@@ -36,3 +36,9 @@ ansible-playbook addworkernodes.yml -i ../inventory/oracleinventory -l oraclemas
 ## Notes
 - You will be prompted for your private load balancer ip when initializing kubernetes cluster . The one provisioned through the terraform .
 - When using limit with for example with addworkernodes oraclemaster is required as we use oracle master to generate the join string .
+
+## Demo
+
+
+https://github.com/Moody-san/ansible-k8s-deployment/assets/87976665/ed06bf91-d8e8-4191-bf77-ecddeb326a32
+
