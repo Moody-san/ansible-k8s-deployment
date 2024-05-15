@@ -39,6 +39,4 @@ ansible-playbook addworkernodes.yml -i ../inventory/oracleinventory -l oraclemas
 
 ## Demo
 
-
-https://github.com/Moody-san/ansible-k8s-deployment/assets/87976665/ed06bf91-d8e8-4191-bf77-ecddeb326a32
-
+https://www.youtube.com/watch?v=7lCZTS3z6kk
